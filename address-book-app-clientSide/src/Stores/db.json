@@ -1,0 +1,108 @@
+{
+  "addresses": [
+    {
+      "name": "milan",
+      "building_location": "ded",
+      "city": "ede",
+      "state": "Punjab",
+      "date": 1658958641936,
+      "uid": 1,
+      "id": 1
+    },
+    {
+      "name": "saransh",
+      "building_location": "rfrf",
+      "city": "rfrf",
+      "state": "Haryana",
+      "date": 1658958979659,
+      "uid": 4,
+      "id": 2
+    },
+    {
+      "name": "abcd",
+      "building_location": "adsasfds",
+      "city": "etret",
+      "state": "Punjab",
+      "date": 1658959897712,
+      "uid": 5,
+      "id": 3
+    },
+    {
+      "name": "asda",
+      "building_location": "asdasd",
+      "city": "asdasd",
+      "state": "Haryana",
+      "date": 1658960005814,
+      "uid": 5,
+      "id": 4
+    },
+    {
+      "name": "njkn",
+      "building_location": "sxs",
+      "city": "xsxs",
+      "state": "Haryana",
+      "date": 1658960814289,
+      "uid": 5,
+      "id": 5
+    },
+    {
+      "name": "xyz",
+      "building_location": "jkkljjl",
+      "city": "kjlj",
+      "state": "Punjab",
+      "date": 1658961043533,
+      "uid": 5,
+      "id": 6
+    },
+    {
+      "name": "mmm",
+      "building_location": "dcdcd",
+      "city": "cdc",
+      "state": "Haryana",
+      "date": 1658961062205,
+      "uid": 5,
+      "id": 7
+    },
+    {
+      "name": "milan 2",
+      "building_location": "wswsw",
+      "city": "mohali",
+      "state": "Haryana",
+      "date": 1659028844438,
+      "uid": 1,
+      "id": 8
+    }
+  ],
+  "users": [
+    {
+      "fullName": "milandeep singh bhalla",
+      "email": "milansinghdav@gmail.com",
+      "password": "Milansingh@1",
+      "id": 1
+    },
+    {
+      "fullName": "rfrf",
+      "email": "milansongh@gma.co",
+      "password": "milan1234@",
+      "id": 2
+    },
+    {
+      "fullName": "test user 1",
+      "email": "testuser1@gmail.com",
+      "password": "Testuser@1",
+      "id": 3
+    },
+    {
+      "fullName": "test saransh",
+      "email": "testsaransh@gmail.com",
+      "password": "Testsaransh@1",
+      "id": 4
+    },
+    {
+      "fullName": "saransh",
+      "email": "saransh@gmail.com",
+      "password": "Saransh@1",
+      "id": 5
+    }
+  ]
+}
