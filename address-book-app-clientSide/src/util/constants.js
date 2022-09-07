@@ -1,5 +1,5 @@
 const constants = {
-    serverUrl: 'http://localhost:8080/graphql'
+    serverUrl: 'https://address-book-app-backend.herokuapp.com/graphql'
 }
 
 export default constants;
