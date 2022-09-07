@@ -1,51 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
-import Navbar from './components/navbar/Navbar';
-import SecondaryMenuBar from './components/SecondryMenuBar/SecondaryMenuBar';
-import MyClassComponent from './components/MyClassComponent';
-import { useEffect, useReducer, useState } from 'react';
-import AddressCard from './components/ListingAdresses/AddressCard';
-import AddressList from './components/ListingAdresses/AddressList';
-import commonFunctions from './components/commanFunctions';
-import { useSelector, useDispatch } from 'react-redux';
-import { addressActions } from './Stores/slices/adderesses-slice';
-import commanFunctions from './components/commanFunctions';
-import { Redirect, Route } from 'react-router-dom';
-import Login from './components/pages/Login'
-import Signup from './components/pages/Signup';
-import { currentUserActions } from './Stores/slices/current-user-slice';
-import { Alert, Snackbar } from '@mui/material';
-import { alertHandlerActions } from './Stores/slices/alert-handler-slice';
+import logo from "./logo.svg";
+import "./App.css";
+import Navbar from "./components/navbar/Navbar";
+import SecondaryMenuBar from "./components/SecondryMenuBar/SecondaryMenuBar";
+import MyClassComponent from "./components/MyClassComponent";
+import { useEffect, useReducer, useState } from "react";
+import AddressCard from "./components/ListingAdresses/AddressCard";
+import AddressList from "./components/ListingAdresses/AddressList";
+import commonFunctions from "./components/commanFunctions";
+import { useSelector, useDispatch } from "react-redux";
+import { addressActions } from "./Stores/slices/adderesses-slice";
+import commanFunctions from "./components/commanFunctions";
+import { Redirect, Route } from "react-router-dom";
+import Login from "./components/pages/Login";
+import Signup from "./components/pages/Signup";
+import { currentUserActions } from "./Stores/slices/current-user-slice";
+import { Alert, Snackbar } from "@mui/material";
+import { alertHandlerActions } from "./Stores/slices/alert-handler-slice";
+import constants from "./util/constants";
 var initialAddresses = [];
 
-
-
 function App() {
-  const alertData = useSelector(state=>state.alertHandlerSlice);
+  let user = JSON.parse(localStorage.getItem("currentUser"));
+
+  const alertData = useSelector((state) => state.alertHandlerSlice);
   //const dispatch = useDispatch();
- 
-  const currentUser = useSelector(state=>state.currentUser.currentUser)
-  const addresses = useSelector(state=> state.addresses.addresses)
+
+  const currentUser = useSelector((state) => state.currentUser.currentUser);
+  const addresses = useSelector((state) => state.addresses.addresses);
   const handleClose = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
 
     addressDispatch(alertHandlerActions.closeAlert());
-};
-const addressDispatch = useDispatch();
+  };
+  const addressDispatch = useDispatch();
 
   let dummyAddress = {
-    name: 'milan',
-    title: 'title',
-    body: 'body'   
-  }
+    name: "milan",
+    title: "title",
+    body: "body",
+  };
   let dummyAddressEdit = {
-    name: 'nalim',
-    title: 'title',
-    body: 'body',
-    id: 5
-  }
+    name: "nalim",
+    title: "title",
+    body: "body",
+    id: 5,
+  };
   // const initAdresses =  async ()=>{
   //   let addresses = {
   //     addresses: []
@@ -54,82 +55,173 @@ const addressDispatch = useDispatch();
   //   console.log('init address = ',addresses);
   //   return addresses;
   // }
-  const addAdressHandler =  (newAddress,sortType)=>{
+  const addAdressHandler = (newAddress, sortType) => {
+    console.log('newAddress-----',newAddress)
     let action = {
-      type:'add',
+      type: "add",
       //value: {}
     };
     newAddress.uid = currentUser.id;
-     fetch('http://localhost:3000/addresses/',{
-      method: 'POST',
-      body: JSON.stringify(newAddress),
-      headers: {
-          'Content-type': 'application/json; charset=UTF-8'
-      }
-    }).then(res=>{return res.json()}).then(res=>{
-      console.log('response ',res);
-      //lastArray.push(res)
-      //return lastArray;
-      action.value = res;
-      console.log('qction value',action.value);
-      addressDispatch(addressActions.addAddress({newAddress:res}))
-      addressDispatch(alertHandlerActions.fireAlert({message:'Address Added Successfully..!!',severety:'success'}))
-      // addressDispatch(action);
-      if(sortType.length>0){
-        let actionSort = {type:sortType}
-        addressDispatch(addressActions.sortAddresses({sortType:sortType}))
-      }
-      if(searchString.length>0){
-
-        window.location.reload();
-      }
-    })
-    
-    
-  }
-  const editAddressHandler = (newAddress)=>{
-    fetch(' http://localhost:3000/addresses/'+newAddress.id,{
-      method: 'PUT',
-      body: JSON.stringify(newAddress),
-      headers: {
-          'Content-type': 'application/json; charset=UTF-8'
-      }
-    }).then(res=>{console.log('response = ',res); return res.json()})
-    .then(res=>{
-      console.log('next res = ',res);
-      let action = {
-        type: 'edit',
-        value: newAddress
-        // id: newAddress.id
-      }
-      addressDispatch(addressActions.editAddress({newAddress: newAddress}));
-      addressDispatch(alertHandlerActions.fireAlert({message:'Address Edited Successfully..!!',severety:'success'}))
-
-    })
-    
-  }
-  const deleteHandler = (id)=>{
-    fetch('http://localhost:3000/addresses/'+id,{
-      method: 'DELETE',
-      //body: JSON.stringify(),
-      headers: {
-          'Content-type': 'application/json; charset=UTF-8'
-      }
-    }).then(res=>{console.log('response = ',res);return res.json()})
-    .then(res =>{console.log(res)
-        let action = {
-          type: 'remove',
-          value: {
-            id: id
+    let graphQlQuery = {
+      query: `
+      mutation {
+           addAddress(addAddressData:{
+             name: "${newAddress.name}",
+             building_location: "${newAddress.building_location}",
+             city: "${newAddress.city}",
+             state: "${newAddress.state}",
+             date: "${newAddress.date}"
+           }){
+            name 
+            building_location 
+            city 
+            state 
+            date 
+            uid 
+            _id
+           }
           }
+      `
+    }
+    fetch(constants.serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + user.token,
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(graphQlQuery),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        console.log("response ", res);
+        //lastArray.push(res)
+        //return lastArray;
+        let addedAddress = {...res.data.addAddress, id: res.data.addAddress._id};
+        console.log("qction value", addedAddress);
+        addressDispatch(addressActions.addAddress({ newAddress: addedAddress }));
+        addressDispatch(
+          alertHandlerActions.fireAlert({
+            message: "Address Added Successfully..!!",
+            severety: "success",
+          })
+        );
+        // addressDispatch(action);
+        if (sortType.length > 0) {
+          let actionSort = { type: sortType };
+          addressDispatch(addressActions.sortAddresses({ sortType: sortType }));
         }
-        addressDispatch(addressActions.removeAddress({id:id}));
-        addressDispatch(alertHandlerActions.fireAlert({message:'Address Deleted Successfully..!!',severety:'success'}))
-
+        if (searchString.length > 0) {
+          window.location.reload();
+        }
       });
+  };
+  const editAddressHandler = (newAddress) => {
+    // fetch(" http://localhost:3000/addresses/" + newAddress.id, {
+    //   method: "PUT",
+    //   body: JSON.stringify(newAddress),
+    //   headers: {
+    //     "Content-type": "application/json; charset=UTF-8",
+    //   },
+    // })
 
-  }
-  const [searchString,setSearchString] = useState('');
+    let graphQlQuery = {
+      query: `
+      mutation {
+           editAddress(editAddressData: {
+             address_id: "${newAddress.id}",
+             newAddress: {
+              name: "${newAddress.name}",
+              building_location: "${newAddress.building_location}",
+              city: "${newAddress.city}",
+              state: "${newAddress.state}",
+              date: "${newAddress.date}",
+             }
+           }){
+             name,
+             uid,
+             city
+           }
+         }
+      `
+    }
+    fetch(constants.serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + user.token,
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(graphQlQuery),
+    })
+      .then((res) => {
+        console.log("response = ", res);
+        return res.json();
+      })
+      .then((res) => {
+        console.log("next res = ", res);
+        let action = {
+          type: "edit",
+          value: newAddress,
+          // id: newAddress.id
+        };
+        addressDispatch(addressActions.editAddress({ newAddress: newAddress }));
+        addressDispatch(
+          alertHandlerActions.fireAlert({
+            message: "Address Edited Successfully..!!",
+            severety: "success",
+          })
+        );
+      });
+  };
+  const deleteHandler = (id) => {
+    console.log('id ------',id)
+    let qraphQlQuery = {
+      query: `
+          mutation {
+              deleteAdddress(deleteAddressData:{
+                address_id: "${id}"
+              }){
+                statusCode,
+                message
+              }
+            }
+      `,
+    };
+
+    fetch(constants.serverUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + user.token,
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(qraphQlQuery),
+    })
+      .then((res) => {
+        console.log("response = ", res);
+        return res.json();
+      })
+      .then((res) => {
+        console.log(res);
+        let action = {
+          type: "remove",
+          value: {
+            id: id,
+          },
+        };
+        addressDispatch(addressActions.removeAddress({ id: id }));
+        addressDispatch(
+          alertHandlerActions.fireAlert({
+            message: "Address Deleted Successfully..!!",
+            severety: "success",
+          })
+        );
+      });
+  };
+  const [searchString, setSearchString] = useState("");
   // const [seachClicked,setSearchClicked] = useState(false);
   // const addressReducer = (prevState,action)=>{
   //   if(action.type=='initialize'){
@@ -145,9 +237,7 @@ const addressDispatch = useDispatch();
   //     lastArray.push(action.value);
   //     console.log('la',lastArray);
   //     return lastArray;
-      
-     
-      
+
   //   }
   //   if(action.type=='remove'){
   //     let lastArray = [...prevState];
@@ -155,7 +245,7 @@ const addressDispatch = useDispatch();
   //       return item.id == action.value.id;
   //     });
   //     lastArray.splice(index,1);
-       
+
   //     return lastArray;
   //   }
   //   if(action.type=='edit'){
@@ -164,11 +254,11 @@ const addressDispatch = useDispatch();
   //       return item.id == action.value.id;
   //     })
   //     let index = lastArray.findIndex(item=>{
-  //       return item.id==action.value.id; 
+  //       return item.id==action.value.id;
   //     })
   //     currentAddress = {...action.value};
   //     lastArray.splice(index,1,currentAddress);
-      
+
   //     return lastArray;
   //   }
   //   if(action.type=='dl'){
@@ -188,7 +278,7 @@ const addressDispatch = useDispatch();
   //   }
   //   if(action.type=='a-z'){
   //     let lastArray = [...prevState];
-      
+
   //     lastArray.sort((a,b)=>{
   //       return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
   //     })
@@ -196,7 +286,7 @@ const addressDispatch = useDispatch();
   //   }
   //   if(action.type=='z-a'){
   //     let lastArray = [...prevState];
-      
+
   //     lastArray.sort((a,b)=>{
   //       return b.name.toLowerCase().localeCompare(a.name.toLowerCase())
   //     })
@@ -218,74 +308,121 @@ const addressDispatch = useDispatch();
   //     return lastArray;
   //   }
   // }
-  
-  // let myAddresses = []
-  useEffect(()=>{
 
-    if(localStorage.getItem('currentUser')){
-      let user = JSON.parse(localStorage.getItem('currentUser'));
-      addressDispatch(currentUserActions.setCurrentUser({currentUser:user}));
-      fetch('http://localhost:3000/addresses?uid='+user.id).then(res=>{return res.json()}).then(res=>{ initialAddresses=res;
-      addressDispatch(addressActions.initialize({initialAddresses:res}))
+  // let myAddresses = []
+  useEffect(() => {
+    const graphQlQuery = {
+      query: `
+      {
+         getAddresses{
+           addresses{
+             name,
+             building_location,
+             _id
+           }
+         }
+       }
+      `,
+    };
+
+    if (localStorage.getItem("currentUser")) {
+      // let user = JSON.parse(localStorage.getItem("currentUser"));
+      addressDispatch(currentUserActions.setCurrentUser({ currentUser: user }));
+      fetch(constants.serverUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + user.token,
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: JSON.stringify(graphQlQuery),
       })
+        .then((res) => {
+          return res.json();
+        })
+        .then((res) => {
+          console.log("res------", res);
+          initialAddresses = res.data.getAddresses.addresses.map(item=>{
+            let currId = item._id;
+            delete item._id;
+            return {
+              ...item,
+              id: currId
+            }
+          });
+          addressDispatch(
+            addressActions.initialize({ initialAddresses: initialAddresses })
+          );
+        });
     }
-    
-     },[]);
-  
+  }, []);
+
   //const [addresses,addressDispatch] = useReducer(addressReducer,[]);
-  const searchAddressesHandler = (str)=>{
-    let keyWords = str.split(' ');
+  const searchAddressesHandler = (str) => {
+    let keyWords = str.split(" ");
     keyWords = commanFunctions.sanatizeWords(keyWords);
-    let searchedResult = []
-    keyWords.forEach((keyWord)=>{
-       searchedResult= addresses.filter((item)=>{
-        let addressKeyWords = item.name.split(' ');
+    let searchedResult = [];
+    keyWords.forEach((keyWord) => {
+      searchedResult = addresses.filter((item) => {
+        let addressKeyWords = item.name.split(" ");
         addressKeyWords = commanFunctions.sanatizeWords(addressKeyWords);
         return addressKeyWords.includes(keyWord);
-      })
-    })
+      });
+    });
 
     setSearchAddresses(searchedResult);
-
-}
-  useEffect(()=>{
-    
-    console.log('adresses = ',addresses);
-    if(searchString.length>0){
-      searchAddressesHandler(searchString)
+  };
+  useEffect(() => {
+    console.log("adresses = ", addresses);
+    if (searchString.length > 0) {
+      searchAddressesHandler(searchString);
     }
-    
-  },[addresses])
-  const [searchAddresses,setSearchAddresses] = useState([]);
- 
-  
+  }, [addresses]);
+  const [searchAddresses, setSearchAddresses] = useState([]);
+
   return (
     <>
       <Navbar />
-      <Snackbar anchorOrigin={{vertical:'top',horizontal:'right'}} open={alertData.alertOpen} autoHideDuration={6000} onClose={handleClose}>
-                <Alert severity={alertData.severety} >
-                    {alertData.message}
-                </Alert>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        open={alertData.alertOpen}
+        autoHideDuration={6000}
+        onClose={handleClose}
+      >
+        <Alert severity={alertData.severety}>{alertData.message}</Alert>
       </Snackbar>
-      <Route path='/' exact>
-        <Redirect to='/login'></Redirect>
+      <Route path="/" exact>
+        <Redirect to="/login"></Redirect>
       </Route>
-      <Route path='/main'>
-        { currentUser.id!=-1 &&
-        <><SecondaryMenuBar addresses={addresses} addAdressHandler={addAdressHandler} searchAddressesHandler={searchAddressesHandler} setSearchString={setSearchString} addressDispatch={addressDispatch} />
-        
-        <AddressList addresses={searchAddresses.length>0?searchAddresses:addresses} editAddressHandler={editAddressHandler} deleteHandler={deleteHandler}  /></>
-        }
+      <Route path="/main">
+        {currentUser.id != -1 && (
+          <>
+            <SecondaryMenuBar
+              addresses={addresses}
+              addAdressHandler={addAdressHandler}
+              searchAddressesHandler={searchAddressesHandler}
+              setSearchString={setSearchString}
+              addressDispatch={addressDispatch}
+            />
+
+            <AddressList
+              addresses={
+                searchAddresses.length > 0 ? searchAddresses : addresses
+              }
+              editAddressHandler={editAddressHandler}
+              deleteHandler={deleteHandler}
+            />
+          </>
+        )}
       </Route>
-      <Route path='/login'>
+      <Route path="/login">
         <Login></Login>
       </Route>
-      <Route path='/signup'>
+      <Route path="/signup">
         <Signup></Signup>
       </Route>
     </>
   );
 }
-
 
 export default App;

@@ -133,19 +133,21 @@ const Login = () => {
         console.log('email', email.inputValue);
         const graphQuery = {
             query: `
+                
                 mutation {
-                    loginUser(loginData: {
-                        email: "${email.inputValue.toString()}",
-                        password: "${password.inputValue.toString()}"
-                    }){
-                        statusCode,
-                        user {
-                            fullName,
-                            _id,
-                            email
-                        }
+                       loginUser(loginData: {
+                         email: "${email.inputValue.toString()}",
+                         password: "${password.inputValue.toString()}"
+                       }){
+                         statusCode,
+                         user {
+                           fullName,
+                           email,
+                           _id
+                         },
+                         token
+                       }
                     }
-                }
             `
         }
         fetch(constants.serverUrl,{
